@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}修改投递记录 - 秋招管理{% endblock %}
+{% block content %}
+
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-pencil"></i> 修改投递记录 #{{ idx + 1 }}
+    </div>
+    <div class="card-body">
+        <form method="post">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">公司名称 <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" name="公司名称" value="{{ record.get('公司名称','') }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">岗位名称 <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" name="岗位名称" value="{{ record.get('岗位名称','') }}" required>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">岗位链接</label>
+                    <input type="url" class="form-control" name="岗位链接" value="{{ record.get('岗位链接','') }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">投递日期</label>
+                    <input type="date" class="form-control" name="投递日期" value="{{ record.get('投递日期','') }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">投递渠道</label>
+                    <input type="text" class="form-control" name="投递渠道" value="{{ record.get('投递渠道','') }}">
+                </div>
+
+                <div class="col-md-12">
+                    <label class="form-label">当前进度状态</label>
+                    <select class="form-select" name="当前进度状态">
+                        {% for s in status_list %}
+                        <option value="{{ s }}" {% if record.get('当前进度状态','') == s %}selected{% endif %}>{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">面试时间</label>
+                    <input type="text" class="form-control" name="面试时间" value="{{ record.get('面试时间','') }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">地点</label>
+                    <input type="text" class="form-control" name="地点" value="{{ record.get('地点','') }}">
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">期望薪资</label>
+                    <input type="text" class="form-control" name="期望薪资" value="{{ record.get('期望薪资','') }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">标签</label>
+                    <input type="text" class="form-control" name="标签" value="{{ record.get('标签','') }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">适配得分</label>
+                    <input type="number" class="form-control" name="岗位适配得分" value="{{ record.get('岗位适配得分','') }}" min="0" max="100">
+                </div>
+
+                <div class="col-md-12">
+                    <label class="form-label">JD原文</label>
+                    <textarea class="form-control" name="JD原文" rows="4">{{ record.get('JD原文','') }}</textarea>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">备注</label>
+                    <textarea class="form-control" name="备注" rows="2">{{ record.get('备注','') }}</textarea>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> 保存修改</button>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">取消</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

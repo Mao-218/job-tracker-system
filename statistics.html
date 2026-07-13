@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}数据统计 - 秋招管理{% endblock %}
+{% block content %}
+
+<!-- 概览卡片 -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card stats-card h-100 border-primary">
+            <div class="number">{{ total }}</div>
+            <div class="label">投递总数</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card stats-card h-100 border-success">
+            <div class="number">{{ composite.get("面试率","0%") }}</div>
+            <div class="label">面试率</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card stats-card h-100 border-warning">
+            <div class="number">{{ composite.get("offer率","0%") }}</div>
+            <div class="label">Offer率</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card stats-card h-100 border-danger">
+            <div class="number">{{ composite.get("已终止",0) }}</div>
+            <div class="label">已终止</div>
+        </div>
+    </div>
+</div>
+
+<!-- 图表：状态分布 + 漏斗 -->
+<div class="row g-3 mb-4">
+    <div class="col-md-7">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-bar-chart-fill"></i> 各状态数量分布</div>
+            <div class="card-body">
+                <canvas id="statusChart" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-funnel-fill"></i> 投递转化漏斗</div>
+            <div class="card-body">
+                <canvas id="funnelChart" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 各阶段转化率表格 -->
+<div class="card mb-4">
+    <div class="card-header"><i class="bi bi-table"></i> 各阶段转化详情</div>
+    <div class="card-body p-0">
+        <table class="table table-bordered mb-0">
+            <thead>
+                <tr>
+                    <th>阶段</th>
+                    <th style="width:100px;">数量</th>
+                    <th style="width:100px;">占比</th>
+                    <th>转化条</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stage, data in funnel_data.items() %}
+                <tr>
+                    <td><strong>{{ stage }}</strong></td>
+                    <td>{{ data.count }}</td>
+                    <td>{{ data.pct }}%</td>
+                    <td>
+                        <div class="progress" style="height:20px;">
+                            {% set color = "#4361ee" if loop.index == 1 else "#3a86ff" if loop.index == 2 else "#4cc9f0" if loop.index == 3 else "#f72585" if loop.index == 4 else "#7209b7" if loop.index == 5 else "#4895ef" %}
+                            <div class="progress-bar" style="width:{{ data.pct }}%;background-color:{{ color }};"
+                                 role="progressbar">{{ data.count }}</div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 各状态详细列表 -->
+<div class="card">
+    <div class="card-header"><i class="bi bi-list-check"></i> 各状态详细计数</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm table-striped mb-0">
+                <thead>
+                    <tr><th>状态</th><th>数量</th><th style="width:60%;">分布</th></tr>
+                </thead>
+                <tbody>
+                    {% for s in status_list %}
+                    {% set c = counts.get(s, 0) %}
+                    <tr>
+                        <td>{{ s }}</td>
+                        <td>{{ c }}</td>
+                        <td>
+                            {% if total > 0 %}
+                            <div class="progress" style="height:14px;">
+                                <div class="progress-bar progress-bar-striped"
+                                     style="width:{{ (c / total * 100)|round(1) }}%;"
+                                     title="{{ (c / total * 100)|round(1) }}%">
+                                </div>
+                            </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // ── 状态分布柱状图 ──────────────────────────
+    var statusLabels = {{ status_labels_json|safe }};
+    var statusValues = {{ status_values_json|safe }};
+    var chartColors = statusLabels.map(function(s) {
+        if (s.indexOf("offer") >= 0 || s.indexOf("收到") >= 0) return "#2d6a4f";
+        if (s.indexOf("挂") >= 0 || s.indexOf("拒绝") >= 0) return "#9b2226";
+        if (s.indexOf("待") >= 0 || s.indexOf("完成") >= 0) return "#e9c46a";
+        return "#457b9d";
+    });
+
+    new Chart(document.getElementById("statusChart"), {
+        type: "bar",
+        data: {
+            labels: statusLabels,
+            datasets: [{
+                label: "记录数",
+                data: statusValues,
+                backgroundColor: chartColors,
+                borderRadius: 4,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: "y",
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { beginAtZero: true, ticks: { stepSize: 1 } },
+                y: { ticks: { font: { size: 10 } } }
+            }
+        }
+    });
+
+    // ── 漏斗图 ──────────────────────────────────
+    var funnelLabels = {{ group_labels_json|safe }};
+    var funnelData = {{ group_values_json|safe }};
+    var funnelColors = ["#4361ee","#3a86ff","#4cc9f0","#f72585","#7209b7"];
+
+    new Chart(document.getElementById("funnelChart"), {
+        type: "bar",
+        data: {
+            labels: funnelLabels,
+            datasets: [{
+                label: "人数",
+                data: funnelData,
+                backgroundColor: funnelColors,
+                borderRadius: 4,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: "y",
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { beginAtZero: true, ticks: { stepSize: 1 } },
+                y: { ticks: { font: { size: 12, weight: "bold" } } }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

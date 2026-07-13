@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}全部投递记录 - 秋招管理{% endblock %}
+{% block content %}
+
+<!-- 搜索/筛选栏 -->
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label small">关键词搜索</label>
+                <input type="text" class="form-control" name="keyword" value="{{ keyword }}" placeholder="公司/岗位/标签…">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small">状态筛选</label>
+                <select class="form-select" name="status">
+                    <option value="">全部状态</option>
+                    {% for s in status_list %}
+                    <option value="{{ s }}" {% if status_filter == s %}selected{% endif %}>{{ s }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 d-grid">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> 搜索</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 记录表格 -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-table me-1"></i> 全部投递记录（{{ total }} 条）</span>
+        <a href="{{ url_for('add') }}" class="btn btn-success btn-sm"><i class="bi bi-plus-lg"></i> 新增</a>
+    </div>
+    <div class="card-body p-0">
+        {% if page_data %}
+        <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>公司</th>
+                        <th>岗位</th>
+                        <th>投递日期</th>
+                        <th>渠道</th>
+                        <th>状态</th>
+                        <th>得分</th>
+                        <th style="width:150px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for abs_idx, rec in page_data %}
+                    <tr>
+                        <td>{{ abs_idx + 1 }}</td>
+                        <td><strong>{{ rec.get("公司名称","") }}</strong></td>
+                        <td>{{ rec.get("岗位名称","") }}</td>
+                        <td>{{ rec.get("投递日期","") }}</td>
+                        <td><span class="badge bg-secondary bg-opacity-25 text-dark">{{ rec.get("投递渠道","") }}</span></td>
+                        <td>
+                            {% set st = rec.get("当前进度状态","") %}
+                            {% if "offer" in st or "收到" in st %}
+                                <span class="badge bg-success badge-status">{{ st }}</span>
+                            {% elif "挂" in st or "拒绝" in st %}
+                                <span class="badge bg-danger badge-status">{{ st }}</span>
+                            {% elif "待" in st or "完成" in st or "HR" in st or "OC" in st %}
+                                <span class="badge bg-warning text-dark badge-status">{{ st }}</span>
+                            {% else %}
+                                <span class="badge bg-info text-dark badge-status">{{ st }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ rec.get("岗位适配得分","-") }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('edit', idx=abs_idx) }}" class="btn btn-outline-primary" title="修改">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{{ url_for('score', idx=abs_idx) }}" class="btn btn-outline-success" title="打分">
+                                    <i class="bi bi-star"></i>
+                                </a>
+                                <form method="post" action="{{ url_for('delete', idx=abs_idx) }}" style="display:inline"
+                                      onsubmit="return confirm('确认删除「{{ rec.get("公司名称","") }} - {{ rec.get("岗位名称","") }}」？')">
+                                    <button class="btn btn-outline-danger" title="删除"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        {% if total_pages > 1 %}
+        <div class="card-footer d-flex justify-content-center">
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item {{ 'disabled' if page <= 1 }}">
+                        <a class="page-link" href="?page={{ page-1 }}&keyword={{ keyword }}&status={{ status_filter }}">&laquo;</a>
+                    </li>
+                    {% for p in range(1, total_pages + 1) %}
+                    <li class="page-item {{ 'active' if p == page }}">
+                        <a class="page-link" href="?page={{ p }}&keyword={{ keyword }}&status={{ status_filter }}">{{ p }}</a>
+                    </li>
+                    {% endfor %}
+                    <li class="page-item {{ 'disabled' if page >= total_pages }}">
+                        <a class="page-link" href="?page={{ page+1 }}&keyword={{ keyword }}&status={{ status_filter }}">&raquo;</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-inbox" style="font-size:3rem;"></i>
+            <p class="mt-2">暂无投递记录</p>
+            <a href="{{ url_for('add') }}" class="btn btn-primary">新增第一条记录</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

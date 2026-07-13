@@ -1,0 +1,18 @@
+# 缓存、日志
+__pycache__/
+*.pyc
+*.log
+
+# 导出数据、临时文件
+export_*.csv
+*.tmp
+
+# 图片临时素材（只保留demo_screenshot内演示图）
+*.jpg
+*.png
+!demo_screenshot/*.png
+!demo_screenshot/*.jpg
+
+# 系统文件
+.DS_Store
+Thumbs.db

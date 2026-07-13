@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}岗位适配度打分 - 秋招管理{% endblock %}
+{% block content %}
+
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-star-fill text-warning"></i> JD 岗位适配度分析
+    </div>
+    <div class="card-body">
+        <!-- 记录信息 -->
+        <table class="table table-bordered mb-4">
+            <tr><th style="width:100px;">公司</th><td>{{ record.get("公司名称","") }}</td></tr>
+            <tr><th>岗位</th><td>{{ record.get("岗位名称","") }}</td></tr>
+            <tr><th>标签</th><td>{{ record.get("标签","-") }}</td></tr>
+        </table>
+
+        <!-- 得分面板 -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-center border-primary">
+                    <div class="card-body">
+                        <div style="font-size:3rem;font-weight:800;color:#4361ee;">{{ result["score"] }}</div>
+                        <div class="text-muted">/ 100 适配得分</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center border-success">
+                    <div class="card-body">
+                        <div style="font-size:2rem;font-weight:700;color:#2d6a4f;">{{ result["matched_count"] }}</div>
+                        <div class="text-muted">/ {{ result["total"] }} 匹配技能</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center border-warning">
+                    <div class="card-body">
+                        <div style="font-size:2rem;font-weight:700;color:#9b2226;">{{ result["total"] - result["matched_count"] }}</div>
+                        <div class="text-muted">/ {{ result["total"] }} 缺失技能</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 技能清单 -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card border-success h-100">
+                    <div class="card-header bg-success bg-opacity-10 text-success fw-bold">
+                        <i class="bi bi-check-circle-fill"></i> 匹配技能清单
+                    </div>
+                    <div class="card-body">
+                        {% if result["matched"] %}
+                        <ul class="list-group list-group-flush">
+                            {% for skill in result["matched"] %}
+                            <li class="list-group-item skill-matched">
+                                <i class="bi bi-check-circle text-success me-2"></i>{{ skill }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p class="text-muted mb-0">未匹配到技能</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-danger h-100">
+                    <div class="card-header bg-danger bg-opacity-10 text-danger fw-bold">
+                        <i class="bi bi-x-circle-fill"></i> 缺失技能清单
+                    </div>
+                    <div class="card-body">
+                        {% if result["missing"] %}
+                        <ul class="list-group list-group-flush">
+                            {% for skill in result["missing"] %}
+                            <li class="list-group-item skill-missing">
+                                <i class="bi bi-x-circle text-danger me-2"></i>{{ skill }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p class="text-success mb-0">全部匹配！</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 保存操作 -->
+        <div class="mt-4 d-flex gap-2">
+            <form method="post" action="{{ url_for('score_save', idx=idx) }}">
+                <input type="hidden" name="score" value="{{ result['score'] }}">
+                <button class="btn btn-success"><i class="bi bi-save"></i> 保存得分（{{ result['score'] }}分）到记录</button>
+            </form>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">返回列表</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

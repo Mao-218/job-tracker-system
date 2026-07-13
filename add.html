@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}新增投递记录 - 秋招管理{% endblock %}
+{% block content %}
+
+<!-- OCR 图片上传 -->
+<div class="card mb-3 border-info">
+    <div class="card-header text-info bg-info bg-opacity-10">
+        <i class="bi bi-camera"></i> 方法一：上传图片自动识别（OCR）
+    </div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data" class="row g-2">
+            <input type="hidden" name="action" value="ocr_upload">
+            <div class="col-md-8">
+                <input type="file" class="form-control" name="ocr_image" accept="image/png,image/jpeg,image/bmp,image/tiff">
+            </div>
+            <div class="col-md-4 d-grid">
+                <button type="submit" class="btn btn-info"><i class="bi bi-magic"></i> OCR 识别并填充</button>
+            </div>
+        </form>
+        <div class="small text-muted mt-2">
+            <i class="bi bi-info-circle"></i> 支持 .png/.jpg/.bmp，需安装 Tesseract OCR 引擎
+        </div>
+    </div>
+</div>
+
+<!-- 手工录入表单 -->
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-pencil-square"></i> 方法二：手动录入
+    </div>
+    <div class="card-body">
+        <form method="post">
+            <input type="hidden" name="action" value="manual_submit">
+
+            <div class="row g-3">
+                <!-- 第一行：公司 + 岗位 -->
+                <div class="col-md-6">
+                    <label class="form-label">公司名称 <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" name="公司名称" value="{{ prefill.get('公司名称','') }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">岗位名称 <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" name="岗位名称" value="{{ prefill.get('岗位名称','') }}" required>
+                </div>
+
+                <!-- 第二行：链接 + 日期 + 渠道 -->
+                <div class="col-md-4">
+                    <label class="form-label">岗位链接</label>
+                    <input type="url" class="form-control" name="岗位链接" value="{{ prefill.get('岗位链接','') }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">投递日期</label>
+                    <input type="date" class="form-control" name="投递日期" value="{{ prefill.get('投递日期','') }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">投递渠道</label>
+                    <input type="text" class="form-control" name="投递渠道" value="{{ prefill.get('投递渠道','截图导入') }}">
+                </div>
+
+                <!-- 第三行：状态 -->
+                <div class="col-md-12">
+                    <label class="form-label">当前进度状态</label>
+                    <select class="form-select" name="当前进度状态">
+                        {% for s in status_list %}
+                        <option value="{{ s }}" {% if prefill.get('当前进度状态','已投递') == s %}selected{% endif %}>{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- 第四行：面试时间 + 地点 -->
+                <div class="col-md-6">
+                    <label class="form-label">面试时间</label>
+                    <input type="text" class="form-control" name="面试时间" value="{{ prefill.get('面试时间','') }}" placeholder="e.g. 2026-07-20 14:00">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">地点</label>
+                    <input type="text" class="form-control" name="地点" value="{{ prefill.get('地点','') }}">
+                </div>
+
+                <!-- 第五行：薪资 + 标签 -->
+                <div class="col-md-4">
+                    <label class="form-label">期望薪资</label>
+                    <input type="text" class="form-control" name="期望薪资" value="{{ prefill.get('期望薪资','') }}" placeholder="20K-30K">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">标签</label>
+                    <input type="text" class="form-control" name="标签" value="{{ prefill.get('标签','') }}" placeholder="逗号分隔">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">适配得分</label>
+                    <input type="number" class="form-control" name="岗位适配得分" value="{{ prefill.get('岗位适配得分','') }}" min="0" max="100" placeholder="0-100">
+                </div>
+
+                <!-- JD原文 -->
+                <div class="col-md-12">
+                    <label class="form-label">JD原文</label>
+                    <textarea class="form-control" name="JD原文" rows="4">{{ prefill.get('JD原文','') }}</textarea>
+                </div>
+
+                <!-- 备注 -->
+                <div class="col-md-12">
+                    <label class="form-label">备注</label>
+                    <textarea class="form-control" name="备注" rows="2">{{ prefill.get('备注','') }}</textarea>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> 保存记录</button>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">取消</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
