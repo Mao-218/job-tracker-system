@@ -15,6 +15,7 @@
 2\. \*\*Tesseract-OCR 截图录入\*\*
 
 上传招聘岗位截图，离线识别文字，自动提取岗位信息，减少手动复制JD的重复工作。
+<img width="865" height="510" alt="上传图片岗位自动识别" src="https://github.com/user-attachments/assets/d70428db-36cd-4845-a2a1-a2a80b061693" />
 
 
 
@@ -27,18 +28,23 @@
 \- `.txt` / `.docx` Word简历 / `.pdf` PDF简历自动解析
 
 内置技能关键词库，自动对比简历与岗位需求，输出0\~100匹配分数、已掌握技能、缺失技能清单，分数可保存至投递记录。
+<img width="864" height="468" alt="上传简历自动打分" src="https://github.com/user-attachments/assets/b5864631-bbb7-4da6-bb1a-463c49011e02" />
 
 
 
 4\. \*\*数据统计与导出\*\*
 
 自动统计各状态投递数量、面试转化率，支持导出CSV报表备份。
+<img width="860" height="449" alt="数据导出" src="https://github.com/user-attachments/assets/4545e996-d54b-4185-83ca-c0261816150d" />
+<img width="866" height="465" alt="导出csv格式文件" src="https://github.com/user-attachments/assets/1d4bd605-5e0a-45f3-84e6-69606b82da01" />
+
 
 
 
 5\. \*\*Flask Web可视化平台\*\*
 
 复用终端业务逻辑代码，浏览器在线查看、新增、编辑投递记录。
+<img width="865" height="402" alt="网页端查看" src="https://github.com/user-attachments/assets/d9c6f585-b6f1-4aec-a736-ad4db1057da7" />
 
 
 
